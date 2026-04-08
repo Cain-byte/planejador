@@ -1,0 +1,223 @@
+
+<style>
+  .planner-wrap {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem 1rem;
+    background: linear-gradient(135deg, #dbeafe, #fbcfe8);
+    font-family: 'Segoe UI', sans-serif;
+    box-sizing: border-box;
+  }
+  .card {
+    width: 100%;
+    max-width: 420px;
+    padding: 28px 24px;
+    border-radius: 25px;
+    background: rgba(255,255,255,0.45);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+    box-sizing: border-box;
+  }
+  .plan-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #1e3a5f;
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    margin: 0 0 16px;
+    padding: 0;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  .section-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #6b7280;
+    margin: 16px 0 6px;
+    display: block;
+  }
+  .plan-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(100,130,200,0.25);
+    background: rgba(255,255,255,0.55);
+    font-size: 14px;
+    font-family: 'Segoe UI', sans-serif;
+    color: #1e3a5f;
+    resize: none;
+    height: 72px;
+    outline: none;
+    box-sizing: border-box;
+    transition: border 0.2s;
+  }
+  .plan-textarea:focus {
+    border: 1px solid rgba(100,130,220,0.5);
+  }
+  #metas {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+  .meta-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .meta-indent {
+    font-size: 13px;
+    color: #93a0b4;
+    white-space: pre;
+    flex-shrink: 0;
+  }
+  .meta-input {
+    flex: 1;
+    padding: 7px 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(100,130,200,0.25);
+    background: rgba(255,255,255,0.55);
+    font-size: 13px;
+    font-family: 'Segoe UI', sans-serif;
+    color: #1e3a5f;
+    outline: none;
+    box-sizing: border-box;
+    transition: border 0.2s;
+  }
+  .meta-input:focus {
+    border: 1px solid rgba(100,130,220,0.5);
+  }
+  .btn-sub {
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    border: none;
+    background: #c7d2fe;
+    color: #3730a3;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.15s, background 0.15s;
+    line-height: 1;
+    padding: 0;
+  }
+  .btn-sub:hover { background: #a5b4fc; transform: scale(1.08); }
+  .row-btns {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .btn-add {
+    padding: 9px 16px;
+    border: none;
+    border-radius: 12px;
+    background: #86efac;
+    color: #14532d;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.15s, background 0.15s;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  .btn-add:hover { background: #4ade80; transform: scale(1.04); }
+  .btn-down {
+    padding: 9px 16px;
+    border: none;
+    border-radius: 12px;
+    background: #fca5a5;
+    color: #7f1d1d;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.15s, background 0.15s;
+    font-family: 'Segoe UI', sans-serif;
+    margin-left: auto;
+  }
+  .btn-down:hover { background: #f87171; transform: scale(1.04); }
+</style>
+
+<div class="planner-wrap">
+  <div class="card">
+    <input class="plan-title" id="titulo" value="Meu Plano" />
+    <span class="section-label">🎯 Objetivo</span>
+    <textarea class="plan-textarea" id="objetivo" placeholder="Descreva seu objetivo..."></textarea>
+    <span class="section-label">📈 Metas</span>
+    <div id="metas"></div>
+    <span class="section-label">🌟 Propósito</span>
+    <textarea class="plan-textarea" id="proposito" placeholder="Qual é o seu propósito?"></textarea>
+    <div class="row-btns">
+      <button class="btn-add" onclick="addMeta()">+ Meta</button>
+      <button class="btn-down" onclick="baixarTXT()">⬇ Baixar .txt</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function ascii(level) {
+  return "  ".repeat(level) + (level > 0 ? "└─ " : "");
+}
+function criarMeta(texto, level) {
+  texto = texto || "";
+  level = level || 0;
+  const row = document.createElement("div");
+  row.className = "meta-row";
+  row.dataset.level = level;
+
+  if (level > 0) {
+    const indent = document.createElement("span");
+    indent.className = "meta-indent";
+    indent.textContent = "  ".repeat(level - 1) + "└─";
+    row.appendChild(indent);
+  }
+
+  const inp = document.createElement("input");
+  inp.className = "meta-input";
+  inp.value = texto;
+  inp.placeholder = level === 0 ? "Meta principal..." : "Sub-meta...";
+
+  const sub = document.createElement("button");
+  sub.className = "btn-sub";
+  sub.title = "Adicionar sub-meta";
+  sub.textContent = "+";
+  sub.onclick = function() {
+    const next = row.nextSibling;
+    const newRow = criarMeta("", level + 1);
+    document.getElementById("metas").insertBefore(newRow, next);
+    newRow.querySelector("input").focus();
+  };
+
+  row.appendChild(inp);
+  row.appendChild(sub);
+  return row;
+}
+function addMeta() {
+  const row = criarMeta("", 0);
+  document.getElementById("metas").appendChild(row);
+  row.querySelector("input").focus();
+}
+function baixarTXT() {
+  const titulo = document.getElementById("titulo").value;
+  const objetivo = document.getElementById("objetivo").value;
+  const proposito = document.getElementById("proposito").value;
+  const rows = document.querySelectorAll(".meta-row");
+  let metas = "";
+  rows.forEach(r => {
+    const level = parseInt(r.dataset.level) || 0;
+    const val = r.querySelector("input").value;
+    metas += "  ".repeat(level) + (level > 0 ? "└─ " : "• ") + val + "\n";
+  });
+  const conteudo = "TÍTULO:\n" + titulo + "\n\nOBJETIVO:\n" + objetivo + "\n\nMETAS:\n" + metas + "\nPROPÓSITO:\n" + proposito;
+  const blob = new Blob([conteudo], { type: "text/plain" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "planejamento.txt";
+  link.click();
+}
+</script>
